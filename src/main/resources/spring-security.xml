@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <security:authentication-manager>
+        <security:authentication-provider>
+            <security:user-service>
+                <security:user name="John" authorities="USER" password="password"></security:user>
+                <security:user name="Margaret" authorities="USER,ADMIN" password="green"></security:user>
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+    <security:http security="none" pattern="/resource/**"/>
+    <security:http use-expressions="true">
+        <security:session-management session-fixation-protection="changeSessionId">
+            <security:concurrency-control max-sessions="1"
+                                          error-if-maximum-exceeded="true"></security:concurrency-control>
+        </security:session-management>
+        <security:intercept-url pattern="/signup" access="permitAll"/>
+        <security:intercept-url pattern="/about" access="permitAll"/>
+        <security:intercept-url pattern="/policies" access="permitAll"/>
+        <security:intercept-url pattern="/login" access="permitAll"/>
+        <security:intercept-url pattern="/logout" access="permitAll"/>
+        <security:intercept-url pattern="/public/**" access="hasAuthority('USER')"/>
+        <security:intercept-url pattern="/admin/**" access="hasAuthority('ADMIN')"/>
+        <security:form-login login-page="/login"
+                             authentication-failure-url="/login?error"
+                             username-parameter="username"
+                             password-parameter="password"/>
+        <!--default-target-url="/secure/"-->
+        <!--login-processing-url="/login"-->
+        <security:logout logout-url="/logout"
+                         logout-success-url="/login?loggedOut"
+                         invalidate-session="true"
+                         delete-cookies="JSESSIONID"/>
+
+        <security:csrf disabled="true"></security:csrf>
+        <security:remember-me key="myApplicationName"></security:remember-me>
+    </security:http>
+
+</beans>
